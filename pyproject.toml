@@ -1,3 +1,14 @@
+[project]
+name = 'tmc_tools'
+version = '0.0.1'
+description = 'Collection of utilities for transition metal complexes'
+authors = [{name = 'Ralf Meyer', email = 'meyer.ralf@yahoo.com'}]
+dependencies = ['pyscf']
+
+
+[project.optional-dependencies]
+tests = ['pytest', 'pytest-cov', 'pytest-resource-path']
+
 [build-system]
 requires = ["setuptools>=42", "pyscf"]
 build-backend = "setuptools.build_meta"

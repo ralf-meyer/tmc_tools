@@ -1,12 +1,8 @@
 from tmc_tools.orbital_energies import orbital_energies
-from pkg_resources import resource_filename, Requirement
 
 
-def test_orbital_diagram(tmpdir):
-    molden_file = resource_filename(
-        Requirement.parse('tmc_tools'),
-        'tests/resources/crf6_fixed.molden')
+def test_orbital_diagram(resource_path_root):
 
-    energies = orbital_energies(molden_file)
+    energies = orbital_energies(resource_path_root / 'crf6_fixed.molden')
 
     assert len(energies) == 5
