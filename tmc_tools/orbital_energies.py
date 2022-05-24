@@ -1,8 +1,12 @@
 from pyscf.tools import molden
+from pyscf.lo import Boys
 
 
-def orbital_energies(filename):
+def get_d_orbital_energies(filename):
     (mol, mo_energy, mo_coeff, mo_occ,
      irrep_labels, spins) = molden.load(filename)
 
-    return [0.] * 5
+    localizer = Boys(mol)
+    # First axis AO coefficient, second MO number
+    Ca = localizer.kernel(mo_coeff[0])
+    return [0.] * 5, [0.] * 5
