@@ -12,7 +12,7 @@ def fix_terachem_molden(moldenfile):
     prev_line = ''
     for line in lines:
         if 'ene=' in line.lower() and 'sym=' not in prev_line.lower():
-            output_lines.append(' Sym= Cs\n')
+            output_lines.append(' Sym= C1\n')
         output_lines.append(line)
         prev_line = line
     return output_lines
