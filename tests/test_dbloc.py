@@ -47,22 +47,26 @@ def test_d_orbital_occuptation():
 def test_dbloc_coefficients():
 
     # 2 valence electrons: V(III) F6
-    assert dbloc_coefficients('V', 'III', 3, 1) == (1., -1.)
+    assert dbloc_coefficients('V', 'III', 3, 1) == (1., -1., 0., 0., 0.)
     # 3 valence electrons: Cr(III) 223tetcl2
-    assert dbloc_coefficients('Cr', 'III', 4, 2) == (1., -3.)
+    assert dbloc_coefficients('Cr', 'III', 4, 2) == (1., -3., 0., 0., 0.)
     # 4 valence electrons: Mn(III) CN6
-    assert dbloc_coefficients('Mn', 'III', 3, 1) == (1., -1.)
-    assert dbloc_coefficients('Mn', 'III', 5, 1) == (2., -3.)
+    assert dbloc_coefficients('Mn', 'III', 3, 1) == (1., -1., 0., 0., 0.)
+    assert dbloc_coefficients('Mn', 'III', 5, 1) == (2., -3., 0., 0., 0.)
     # 5 valence electrons: Fe(III) CN6
     # Not same as Table 8 because here lambda=0
-    assert dbloc_coefficients('Fe', 'III', 6, 4) == (1., -3.)
-    assert dbloc_coefficients('Fe', 'III', 6, 2) == (2., -4.)
-    assert dbloc_coefficients('Fe', 'III', 2, 4) == (-1., 1.)
-    assert dbloc_coefficients('Fe', 'III', 2, 6) == (-2., 4.)
+    assert dbloc_coefficients('Fe', 'III', 6, 4) == (1., -3., 0., 0., 0.)
+    assert dbloc_coefficients('Fe', 'III', 6, 2) == (2., -4., 0., 0., 0.)
+    assert dbloc_coefficients('Fe', 'III', 2, 4) == (-1., 1., 0., 0., 0.)
+    assert dbloc_coefficients('Fe', 'III', 2, 6) == (-2., 4., 0., 0., 0.)
     # 6 valence electrons: Fe(II) CN6
-    assert dbloc_coefficients('Fe', 'II', 1, 3) == (-1., 0.)
+    assert dbloc_coefficients('Fe', 'II', 1, 3) == (-1., 0., 0., 0., 0.)
     # 7 valence electrons: Co(II) F6
     # Not same as Table 8 because here lambda=0
-    assert dbloc_coefficients('Co', 'II', 4, 2) == (1., -1.)
+    assert dbloc_coefficients('Co', 'II', 4, 2) == (1., -1., 0., 0., 0.)
     # 8 valence electrons: Ni(II) F6
-    assert dbloc_coefficients('Ni', 'II', 3, 1) == (1., -1.)
+    assert dbloc_coefficients('Ni', 'II', 3, 1) == (1., -1., 0., 0., 0.)
+
+    # Fe(II) CN6
+    assert (dbloc_coefficients('Fe', 'III', 2, 4, ['carbonyl']*6)
+            == (-1., 1., 0., 0., 6.))
