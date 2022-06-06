@@ -7,9 +7,10 @@ def test_d_orbital_occuptation():
     Additional higher or intermediate spin cases are added where
     applicable."""
 
-    # Test both integer and roman numeral call of oxidation
+    # Test both integer / roman numeral call of oxidation and upper and lower
+    # case versions of the metal string.
     assert (d_orbital_occupation('Fe', 'II', 5)
-            == d_orbital_occupation('Fe', 2, 5))
+            == d_orbital_occupation('fe', 2, 5))
 
     # Extended Hughes and Friesner cases
     # 2 valence electrons

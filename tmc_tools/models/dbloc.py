@@ -52,9 +52,9 @@ def d_orbital_occupation(metal, oxidation, multiplicity):
     if isinstance(oxidation, str):
         oxidation = constants.roman_numerals[oxidation]
     # Check that metal is in the 3d block
-    assert 21 <= constants.atomic_numbers[metal] <= 30
+    assert 21 <= constants.atomic_numbers[metal.capitalize()] <= 30
     # Subtract 18 electrons (Argon configuration) and oxidation state.
-    n_valence = constants.atomic_numbers[metal] - 18 - oxidation
+    n_valence = constants.atomic_numbers[metal.capitalize()] - 18 - oxidation
     n_unpaired = multiplicity - 1
     n_paired = n_valence - n_unpaired
     assert n_paired % 2 == 0
