@@ -3,7 +3,7 @@ name = 'tmc_tools'
 version = '0.0.1'
 description = 'Collection of utilities for transition metal complexes'
 authors = [{name = 'Ralf Meyer', email = 'meyer.ralf@yahoo.com'}]
-dependencies = ['pyscf']
+dependencies = ['ase', 'networkx', 'pyscf']
 
 
 [project.optional-dependencies]
