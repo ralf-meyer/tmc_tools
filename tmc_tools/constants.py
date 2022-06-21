@@ -167,6 +167,7 @@ covalent_radii = np.array([
 # https://en.wikipedia.org/wiki/Electronegativities_of_the_elements_(data_page)
 no_data = np.NaN
 electronegativity = np.array([
+    no_data,  # X
     2.20,  # H
     no_data,  # He
     0.98,  # Li
