@@ -3,7 +3,8 @@ from ase.data import chemical_symbols, atomic_numbers, covalent_radii
 from ase.data.colors import jmol_colors
 
 
-__all__ = [chemical_symbols, atomic_numbers, covalent_radii, jmol_colors]
+__all__ = ["chemical_symbols", "atomic_numbers", "covalent_radii",
+           "jmol_colors"]
 
 roman_numerals = {'I': 1, 'II': 2, 'III': 3, 'IV': 4, 'V': 5}
 
