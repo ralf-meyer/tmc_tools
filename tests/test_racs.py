@@ -69,66 +69,21 @@ def test_multi_centered_AC(furan_graph):
     np.testing.assert_allclose(descriptors, ref)
 
 
-def test_parts_versus_molSimplify(fe_co_6, resource_path_root, atol=1e-4):
+@pytest.mark.parametrize('xyz_path, ref_path', [
+    ('fe_carbonyl_6.xyz',
+     'racs_Fe_carbonyl_6.pickle'),
+    ('mn_furan_water_ammonia_furan_water_ammonia.xyz',
+     'racs_Mn_furan_water_ammonia_furan_water_ammonia.pickle'),
+    ('cr_acac_acac_bipy.xyz',
+     'racs_Cr_acac_acac_bipy.pickle'),
+    ('co_acac_en_water_hydrogensulfide.xyz',
+     'racs_Co_acac_en_water_hydrogensulfide.pickle')])
+def test_octahedral_racs_Mn_heteroleptic(resource_path_root, xyz_path,
+                                         ref_path, atol=1e-4):
 
-    with open(resource_path_root / 'racs_Fe(CO)_6.pickle', 'rb') as fin:
-        ref_dict = pickle.load(fin)
+    graph = graph_from_xyz_file(resource_path_root / xyz_path)
 
-    depth = 3
-    # Unfortunately S values can not be compared as we use different
-    # references for the covalent radius.
-    properties = ['Z', 'chi', 'T', 'I']
-
-    mc_descriptors = atom_centered_AC(fe_co_6, 0, depth=depth)
-    for i in range(depth + 1):
-        for j, prop in enumerate(properties):
-            assert abs(mc_descriptors[i, j]
-                       - ref_dict[f'mc-{prop}-{i}-all']) < atol
-
-    d_mc_descriptors = atom_centered_AC(fe_co_6, 0, depth=depth,
-                                        operation=operator.sub)
-    for i in range(depth + 1):
-        for j, prop in enumerate(properties):
-            assert abs(d_mc_descriptors[i, j]
-                       - ref_dict[f'D_mc-{prop}-{i}-all']) < atol
-
-    f_descriptors = multi_centered_AC(fe_co_6, depth=depth)
-    for i in range(depth + 1):
-        for j, prop in enumerate(properties):
-            assert abs(f_descriptors[i, j]
-                       - ref_dict[f'f-{prop}-{i}-all']) < atol
-
-
-def test_octahedral_racs_Fe_CO_6(fe_co_6, resource_path_root, atol=1e-4):
-
-    with open(resource_path_root / 'racs_Fe(CO)_6.pickle', 'rb') as fin:
-        ref_dict = pickle.load(fin)
-
-    depth = 3
-    # Unfortunately S values can not be compared as we use different
-    # references for the covalent radius.
-    properties = ['Z', 'chi', 'T', 'I']
-    descriptors = ocatahedral_racs(fe_co_6, depth=depth)
-
-    # Dictionary encoded the order of the descriptors in the numpy array
-    start_scopes = {0: ('f', 'all'), 1: ('mc', 'all'), 2: ('lc', 'ax'),
-                    3: ('lc', 'eq'), 4: ('f', 'ax'), 5: ('f', 'eq'),
-                    6: ('D_mc', 'all'), 7: ('D_lc', 'ax'), 8: ('D_lc', 'eq')}
-
-    for s, (start, scope) in start_scopes.items():
-        for d in range(depth + 1):
-            for p, prop in enumerate(properties):
-                assert abs(descriptors[s, d, p]
-                           - ref_dict[f'{start}-{prop}-{d}-{scope}']) < atol
-
-
-def test_octahedral_racs_Mn_heteroleptic(resource_path_root, atol=1e-4):
-
-    graph = graph_from_xyz_file(
-        resource_path_root / 'mn_furan_water_ammonia_furan_water_ammonia.xyz')
-
-    with open(resource_path_root / 'racs_Mn_furan_water_ammonia_furan_water'
-              '_ammonia.pickle', 'rb') as fin:
+    with open(resource_path_root / ref_path, 'rb') as fin:
         ref_dict = pickle.load(fin)
 
     depth = 3
