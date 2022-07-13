@@ -65,7 +65,9 @@ def ocatahedral_racs(graph, depth: int = 3, equatorial_connecting_atoms=None):
     # First find all connecting atoms (assumes the center is node 0):
     connecting_atoms = list(subgraphs.neighbors(0))
     # Assert that we are removing 6 edges
-    assert len(connecting_atoms) == 6
+    if len(connecting_atoms) != 6:
+        raise ValueError('First entry in the graph does not have 6 neighbors '
+                         'as expected for an octahedral complex.')
     # Then cut the graph by removing all connections to the first atom
     subgraphs.remove_edges_from([(0, c) for c in connecting_atoms])
 
@@ -75,10 +77,14 @@ def ocatahedral_racs(graph, depth: int = 3, equatorial_connecting_atoms=None):
         equatorial_connecting_atoms = connecting_atoms[:4]
         axial_connecting_atoms = connecting_atoms[4:]
     else:
-        assert len(equatorial_connecting_atoms) == 4
         axial_connecting_atoms = [c for c in connecting_atoms
                                   if c not in equatorial_connecting_atoms]
-        assert len(axial_connecting_atoms) == 2
+        if (len(equatorial_connecting_atoms) != 4
+                or len(axial_connecting_atoms) != 2):
+            raise ValueError('The provided equatorial connecting atoms '
+                             f'{equatorial_connecting_atoms} are not '
+                             'consistent with the neighbors of the first '
+                             f'entry in the graph {connecting_atoms}')
 
     # Build lists of connecting atom and ligand
     # subgraph tuples by first finding set of nodes for the component that the
