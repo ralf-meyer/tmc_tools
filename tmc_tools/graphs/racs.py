@@ -49,7 +49,7 @@ def multi_centered_AC(graph, depth: int = 3,
     return output
 
 
-def ocatahedral_racs(graph, depth: int = 3):
+def ocatahedral_racs(graph, depth: int = 3, equatorial_connecting_atoms=None):
     # Following J. Phys. Chem. A 2017, 121, 8939 there are 6 start/scope
     # combinations for product ACs and 3 for difference ACs.
     output = np.zeros((6 + 3, depth + 1, 5))
@@ -69,17 +69,30 @@ def ocatahedral_racs(graph, depth: int = 3):
     # Then cut the graph by removing all connections to the first atom
     subgraphs.remove_edges_from([(0, c) for c in connecting_atoms])
 
-    # Assume the first 4 connecting atoms belong to the equatorial ligands
-    # and the other two are axial. Build lists of connecting atom and ligand
+    if equatorial_connecting_atoms is None:
+        # Assume the first 4 connecting atoms belong to the equatorial ligands
+        # and the other two are axial.
+        equatorial_connecting_atoms = connecting_atoms[:4]
+        axial_connecting_atoms = connecting_atoms[4:]
+    else:
+        assert len(equatorial_connecting_atoms) == 4
+        axial_connecting_atoms = [c for c in connecting_atoms
+                                  if c not in equatorial_connecting_atoms]
+        assert len(axial_connecting_atoms) == 2
+
+    # Build lists of connecting atom and ligand
     # subgraph tuples by first finding set of nodes for the component that the
     # connecting atom c comes from (using nx.node_conncted_component()) and
     # then constructing a subgraph using this node set.
     axial_ligands = [
         (c, subgraphs.subgraph(nx.node_connected_component(subgraphs, c)))
-        for c in connecting_atoms[4:]]
+        for c in axial_connecting_atoms]
     equatorial_ligands = [
         (c, subgraphs.subgraph(nx.node_connected_component(subgraphs, c)))
-        for c in connecting_atoms[:4]]
+        for c in equatorial_connecting_atoms]
+    print(equatorial_ligands)
+    print([atom_centered_AC(g, c, depth=depth)
+           for (c, g) in equatorial_ligands])
 
     # Note that the ligand centered RACs are averaged over the involved
     # ligands.
