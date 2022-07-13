@@ -5,7 +5,7 @@ from tmc_tools.constants import (atomic_numbers, electronegativity,
                                  covalent_radii)
 
 
-def property_vector(graph, node):
+def racs_property_vector(graph, node):
     output = np.zeros(5)
     symbol = graph.nodes[node]['symbol']
     Z = atomic_numbers[symbol]
@@ -23,41 +23,48 @@ def property_vector(graph, node):
 
 
 def atom_centered_AC(graph, starting_node, depth: int = 3,
-                     operation=operator.mul):
-    output = np.zeros((depth + 1, 5))
+                     operation=operator.mul,
+                     property_fun=racs_property_vector):
     # Generate all paths from the starting node to all possible nodes
     lengths = nx.single_source_shortest_path_length(
         graph, source=starting_node, cutoff=depth)
-    p_i = property_vector(graph, starting_node)
+    p_i = property_fun(graph, starting_node)
+    output = np.zeros((depth + 1, len(p_i)))
     for node, d_ij in lengths.items():
-        p_j = property_vector(graph, node)
+        p_j = property_fun(graph, node)
         output[d_ij] += operation(p_i, p_j)
     return output
 
 
 def multi_centered_AC(graph, depth: int = 3,
-                      operation=operator.mul):
-    output = np.zeros((depth + 1, 5))
+                      operation=operator.mul,
+                      property_fun=racs_property_vector):
+    n_props = len(property_fun(graph, list(graph.nodes.keys())[0]))
+    output = np.zeros((depth + 1, n_props))
     # Generate all pairwise path lengths
     lengths = nx.all_pairs_shortest_path_length(
         graph, cutoff=depth)
     for node_i, lengths_i in lengths:
-        p_i = property_vector(graph, node_i)
+        p_i = property_fun(graph, node_i)
         for node_j, d_ij in lengths_i.items():
-            p_j = property_vector(graph, node_j)
+            p_j = property_fun(graph, node_j)
             output[d_ij] += operation(p_i, p_j)
     return output
 
 
-def ocatahedral_racs(graph, depth: int = 3, equatorial_connecting_atoms=None):
+def ocatahedral_racs(graph, depth: int = 3, equatorial_connecting_atoms=None,
+                     property_fun=racs_property_vector):
     # Following J. Phys. Chem. A 2017, 121, 8939 there are 6 start/scope
     # combinations for product ACs and 3 for difference ACs.
-    output = np.zeros((6 + 3, depth + 1, 5))
+    n_props = len(property_fun(graph, list(graph.nodes.keys())[0]))
+    output = np.zeros((6 + 3, depth + 1, n_props))
 
     # start = f, scope = all, product
-    output[0] = multi_centered_AC(graph, depth=depth)
+    output[0] = multi_centered_AC(graph, depth=depth,
+                                  property_fun=property_fun)
     # start = mc, scope = all, product
-    output[1] = atom_centered_AC(graph, 0, depth=depth)
+    output[1] = atom_centered_AC(graph, 0, depth=depth,
+                                 property_fun=property_fun)
 
     # For the other scopes the graph has to be subdivided into individual
     # ligand graphs. Make these changes on a copy of the graph:
@@ -96,37 +103,41 @@ def ocatahedral_racs(graph, depth: int = 3, equatorial_connecting_atoms=None):
     equatorial_ligands = [
         (c, subgraphs.subgraph(nx.node_connected_component(subgraphs, c)))
         for c in equatorial_connecting_atoms]
-    print(equatorial_ligands)
-    print([atom_centered_AC(g, c, depth=depth)
-           for (c, g) in equatorial_ligands])
 
     # Note that the ligand centered RACs are averaged over the involved
     # ligands.
     # start = lc, scope = ax, product
-    output[2] = np.mean([atom_centered_AC(g, c, depth=depth)
+    output[2] = np.mean([atom_centered_AC(g, c, depth=depth,
+                                          property_fun=property_fun)
                          for (c, g) in axial_ligands], axis=0)
 
     # start = lc, scope = eq, product
-    output[3] = np.mean([atom_centered_AC(g, c, depth=depth)
+    output[3] = np.mean([atom_centered_AC(g, c, depth=depth,
+                                          property_fun=property_fun)
                          for (c, g) in equatorial_ligands], axis=0)
 
-    output[4] = np.mean([multi_centered_AC(g, depth=depth)
+    output[4] = np.mean([multi_centered_AC(g, depth=depth,
+                                           property_fun=property_fun)
                          for (_, g) in axial_ligands], axis=0)
-    output[5] = np.mean([multi_centered_AC(g, depth=depth)
+    output[5] = np.mean([multi_centered_AC(g, depth=depth,
+                                           property_fun=property_fun)
                          for (_, g) in equatorial_ligands], axis=0)
 
     # Finally calculate the difference ACs the same way:
     # start = mc, scope = all, difference
     output[6] = atom_centered_AC(graph, 0, depth=depth,
-                                 operation=operator.sub)
+                                 operation=operator.sub,
+                                 property_fun=property_fun)
     # start = lc, scope = ax, difference
     output[7] = np.mean([atom_centered_AC(g, c, depth=depth,
-                                          operation=operator.sub)
+                                          operation=operator.sub,
+                                          property_fun=property_fun)
                          for (c, g) in axial_ligands], axis=0)
 
     # start = lc, scope = eq, difference
     output[8] = np.mean([atom_centered_AC(g, c, depth=depth,
-                                          operation=operator.sub)
+                                          operation=operator.sub,
+                                          property_fun=property_fun)
                          for (c, g) in equatorial_ligands], axis=0)
 
     return output
