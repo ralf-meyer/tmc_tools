@@ -12,5 +12,7 @@ def deprecated(message):
         def inner(*args, **kwargs):
             warnings.warn(message, DeprecationWarning)
             return func(*args, **kwargs)
+
         return inner
+
     return decorator
