@@ -178,3 +178,78 @@ def ocatahedral_racs(
     )
 
     return output
+
+
+def tetrahedral_racs(
+    graph,
+    depth: int = 3,
+    property_fun=racs_property_vector,
+):
+    # For tetrahedrals there are 4 start/scope
+    # combinations for product ACs and 2 for difference ACs.
+    n_props = len(property_fun(graph, list(graph.nodes.keys())[0]))
+    output = np.zeros((4 + 2, depth + 1, n_props))
+
+    # start = f, scope = all, product
+    output[0] = multi_centered_AC(graph, depth=depth, property_fun=property_fun)
+    # start = mc, scope = all, product
+    output[1] = atom_centered_AC(graph, 0, depth=depth, property_fun=property_fun)
+
+    # For the other scopes the graph has to be subdivided into individual
+    # ligand graphs. Make these changes on a copy of the graph:
+    subgraphs = graph.copy()
+    # First find all connecting atoms (assumes the center is node 0):
+    connecting_atoms = list(subgraphs.neighbors(0))
+    # Assert that we are removing 4 edges
+    if len(connecting_atoms) != 4:
+        raise ValueError(
+            "First entry in the graph does not have 6 neighbors "
+            "as expected for an octahedral complex."
+        )
+    # Then cut the graph by removing all connections to the first atom
+    subgraphs.remove_edges_from([(0, c) for c in connecting_atoms])
+
+    # Build lists of connecting atom and ligand
+    # subgraph tuples by first finding set of nodes for the component that the
+    # connecting atom c comes from (using nx.node_conncted_component()) and
+    # then constructing a subgraph using this node set.
+    ligands = [
+        (c, subgraphs.subgraph(nx.node_connected_component(subgraphs, c)))
+        for c in connecting_atoms
+    ]
+
+    # Note that the ligand centered RACs are averaged over the involved
+    # ligands.
+    # start = lc, scope = lig, product
+    output[2] = np.mean(
+        [
+            atom_centered_AC(g, c, depth=depth, property_fun=property_fun)
+            for (c, g) in ligands
+        ],
+        axis=0,
+    )
+    # start = lig, scope = lig, product
+    output[3] = np.mean(
+        [
+            multi_centered_AC(g, depth=depth, property_fun=property_fun)
+            for (_, g) in ligands
+        ],
+        axis=0,
+    )
+
+    # Finally calculate the difference ACs the same way:
+    # start = mc, scope = all, difference
+    output[4] = atom_centered_AC(
+        graph, 0, depth=depth, operation=operator.sub, property_fun=property_fun
+    )
+    # start = lc, scope = ax, difference
+    output[5] = np.mean(
+        [
+            atom_centered_AC(
+                g, c, depth=depth, operation=operator.sub, property_fun=property_fun
+            )
+            for (c, g) in ligands
+        ],
+        axis=0,
+    )
+    return output
