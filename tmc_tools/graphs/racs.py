@@ -242,7 +242,7 @@ def tetrahedral_racs(
     output[4] = atom_centered_AC(
         graph, 0, depth=depth, operation=operator.sub, property_fun=property_fun
     )
-    # start = lc, scope = ax, difference
+    # start = lc, scope = lig, difference
     output[5] = np.mean(
         [
             atom_centered_AC(
