@@ -4,7 +4,7 @@ from tmc_tools.constants import covalent_radii
 from tmc_tools.utils import deprecated
 
 
-def graph_from_ase_atoms(atoms, threshold=1.2):
+def graph_from_ase_atoms(atoms, threshold=1.2, covalent_radii=covalent_radii):
     g = nx.Graph()
     for i, atom in enumerate(atoms):
         g.add_node(i, symbol=atom.symbol)
@@ -18,15 +18,15 @@ def graph_from_ase_atoms(atoms, threshold=1.2):
 
 
 @deprecated("Use graph_from_ase_atoms() instead")
-def graph_from_atoms(atoms, threshold=1.2):
-    return graph_from_ase_atoms(atoms, threshold=threshold)
+def graph_from_atoms(atoms, **kwargs):
+    return graph_from_ase_atoms(atoms, **kwargs)
 
 
-def graph_from_xyz_file(file, threshold=1.2):
+def graph_from_xyz_file(file, **kwargs):
     import ase.io
 
     atoms = ase.io.read(file)
-    return graph_from_ase_atoms(atoms, threshold=threshold)
+    return graph_from_ase_atoms(atoms, **kwargs)
 
 
 def graph_from_mol_file(file):
