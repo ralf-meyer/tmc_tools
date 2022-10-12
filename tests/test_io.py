@@ -1,4 +1,17 @@
-from tmc_tools.io import fix_terachem_molden
+import numpy as np
+from tmc_tools.io import read_mol, fix_terachem_molden
+
+
+def test_read_mol(resource_path_root):
+    with open(resource_path_root / "cyanide.mol", "r") as fin:
+        atoms = read_mol(fin)
+    np.testing.assert_equal(atoms.get_initial_charges(), [-1.0, 0.0])
+
+    with open(resource_path_root / "oxalate.mol", "r") as fin:
+        atoms = read_mol(fin)
+    np.testing.assert_equal(
+        atoms.get_initial_charges(), [0.0, 0.0, 0.0, 0.0, -1.0, -1.0]
+    )
 
 
 def test_fix_terachem_molden(resource_path_root):
