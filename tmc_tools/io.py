@@ -25,7 +25,6 @@ def read_mol(fileobj):
         if line.startswith("M  CHG"):
             split = line.split()[3:]
             for i in range(0, len(split), 2):
-                print(int(split[i]) - 1, float(split[i + 1]))
                 charges[int(split[i]) - 1] = float(split[i + 1])
             break
     return Atoms(symbols=symbols, positions=positions, charges=charges)
