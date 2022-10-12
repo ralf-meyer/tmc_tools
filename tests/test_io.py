@@ -1,4 +1,4 @@
-from tmc_tools.io_tools import fix_terachem_molden
+from tmc_tools.io import fix_terachem_molden
 
 
 def test_fix_terachem_molden(resource_path_root):
