@@ -1,7 +1,11 @@
 import pytest
 import ase.io
 import networkx as nx
-from tmc_tools.graphs.constructors import graph_from_ase_atoms, graph_from_mol_file
+from tmc_tools.graphs.constructors import (
+    graph_from_ase_atoms,
+    graph_from_mol_file,
+    graph_from_mol2_file,
+)
 
 
 def test_water(resource_path_root):
@@ -44,7 +48,6 @@ def furan_graph():
 
 
 def test_furan(resource_path_root, furan_graph):
-
     atoms = ase.io.read(resource_path_root / "furan.mol")
     g = graph_from_ase_atoms(atoms)
     assert g.nodes == furan_graph.nodes
@@ -53,3 +56,9 @@ def test_furan(resource_path_root, furan_graph):
     g = graph_from_mol_file(resource_path_root / "furan.mol")
     assert g.nodes == furan_graph.nodes
     assert g.edges == furan_graph.edges
+
+
+def test_mol2_file(resource_path_root):
+    g = graph_from_mol2_file(resource_path_root / "ADUYUV.mol2")
+    assert g.number_of_nodes() == 72
+    assert g.number_of_edges() == 75
